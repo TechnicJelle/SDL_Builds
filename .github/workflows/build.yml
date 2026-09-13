@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: libsdl-org/SDL.git
-          ref: $SDL_TAG
+          ref: ${{ env.SDL_TAG }}
           path: clones
 
       - name: CMake Configure
