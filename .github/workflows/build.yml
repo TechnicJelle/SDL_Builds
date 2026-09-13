@@ -82,7 +82,7 @@ jobs:
         run: |
           cmake --build build --config Release --parallel
           cd build
-          [ -d "Release" ] && cp Release/* .
+          [ -d "Release" ] && cp Release/* . || true
 
       - name: Upload built Dynamic Library file
         uses: actions/upload-artifact@v7
