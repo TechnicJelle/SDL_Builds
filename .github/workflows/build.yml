@@ -1,8 +1,6 @@
 name: Build
 
 on:
-  push:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -49,6 +47,23 @@ jobs:
         run: >
           cmake --build build --config Release --parallel
 
-      - name: Show built files
-        working-directory: clones/SDL/build
-        run: ls -la
+      - name: Extract Dynamic Library files from build
+        run: |
+          mkdir -p runtimes
+          cp clones/SDL/build/*.so* runtimes/ --no-dereference
+          git add runtimes
+
+      - name: Setup git credentials for the GitHub Actions Bot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Mark success
+        run: |
+          git -C clones/SDL describe --tags --exact-match > version_SDL
+          git add version_SDL
+
+      - name: Push update
+        run: |
+          git commit -m "Updated SDL"
+          git push
