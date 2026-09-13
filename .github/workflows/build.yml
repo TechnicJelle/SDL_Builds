@@ -55,7 +55,7 @@ jobs:
           libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
 
       - name: Prepare for cloning
-        run: mkdir clones
+        run: mkdir -p clones
 
       - name: Get SDL source
         working-directory: clones
@@ -84,11 +84,15 @@ jobs:
           cd build
           [ -d "Release" ] && cp Release/* . || true
 
+      - name: Prepare for upload
+        run: |
+          mkdir -p upload
+          cp "clones/SDL/build/${{ matrix.so-name }}" "upload/${{ matrix.rid }},${{ matrix.so-name }}"
+
       - name: Upload built Dynamic Library file
         uses: actions/upload-artifact@v7
         with:
-          path: clones/SDL/build/${{ matrix.so-name }}
-          name: ${{ matrix.rid }},${{ matrix.so-name }}
+          path: upload/*
           archive: false
 
   push:
