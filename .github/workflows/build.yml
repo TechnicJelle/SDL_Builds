@@ -81,8 +81,8 @@ jobs:
         
       - name: Put Dynamic Library files into the correct spots
         run: |
-          mkdir -p libs/SDL3/runtimes/linux-x64/native
-          cp builds/libSDL3.so libs/SDL3/runtimes/linux-x64/native/
+          mkdir -p libs/SDL3/linux-x64
+          cp builds/libSDL3.so libs/SDL3/linux-x64/
           git add libs
 
       - name: Setup git credentials for the GitHub Actions Bot
