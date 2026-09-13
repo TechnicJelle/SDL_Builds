@@ -14,19 +14,19 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
+      needs_update: ${{ steps.tag.outputs.needs_update }}
     steps:
       - uses: actions/checkout@v7
 
       - name: Get Latest Release Tag
         id: tag
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")
           SDL_TAG_LOCAL=$(cat libs/SDL3/version.txt)
           if [[ "$SDL_TAG" == "$SDL_TAG_LOCAL" ]]; then
-            gh run cancel ${{ github.run_id }}
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
           else
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
             echo "tag=$SDL_TAG" >> "$GITHUB_OUTPUT"
           fi
 
@@ -34,6 +34,7 @@ jobs:
     name: build (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     needs: sdl-version
+    if: needs.sdl-version.outputs.needs_update == true
     strategy:
       fail-fast: false
       matrix:
@@ -107,6 +108,7 @@ jobs:
   push:
     runs-on: ubuntu-latest
     needs: [ sdl-version, build ]
+    if: needs.sdl-version.outputs.needs_update == true
     env:
       SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
     steps:
