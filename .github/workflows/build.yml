@@ -42,6 +42,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
     steps:
       - name: Install Linux dependencies
         if: startsWith(matrix.os, 'ubuntu')
@@ -59,8 +61,6 @@ jobs:
 
       - name: Get SDL source
         working-directory: clones
-        env:
-          SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
         run: git clone --depth 1 --branch $SDL_TAG https://github.com/libsdl-org/SDL.git
 
       - name: CMake Configure
@@ -98,6 +98,8 @@ jobs:
   push:
     runs-on: ubuntu-latest
     needs: [ sdl-version, build ]
+    env:
+      SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
 
@@ -119,8 +121,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Mark success
-        env:
-          SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
         run: |
           echo "$SDL_TAG" > libs/SDL3/version.txt
           git add libs/SDL3/version.txt
@@ -128,6 +128,6 @@ jobs:
       - name: Push update
         run: |
           [[ $(git diff-index HEAD --) ]] || { echo "No updates found. No push necessary." >> $GITHUB_STEP_SUMMARY; exit 0; }
-          git commit -m "Updated SDL"
+          git commit -m "Updated SDL to $SDL_TAG"
           git pull --rebase
           git push
