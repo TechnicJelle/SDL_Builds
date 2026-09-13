@@ -81,7 +81,7 @@ jobs:
 
       - name: Get latest SDL3 release version
         run: |
-          echo "SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL_image/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")" >> $GITHUB_ENV
+          echo "SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")" >> $GITHUB_ENV
 
       - name: Get SDL source
         uses: actions/checkout@v7
@@ -89,6 +89,24 @@ jobs:
           repository: libsdl-org/SDL.git
           ref: ${{ env.SDL_TAG }}
           path: clones/SDL
+
+      - name: CMake Configure SDL
+        working-directory: clones/SDL
+        run: >
+          cmake -S . -B build -G "${{ matrix.generator }}"
+          -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+          -DCMAKE_BUILD_TYPE=Release
+          -DSDL_SHARED=ON
+          -DSDL_STATIC=OFF
+          -DSDL_TEST_LIBRARY=OFF
+          -DSDL_TESTS=OFF
+          -DSDL_DISABLE_INSTALL=ON
+          -DSDL_DISABLE_INSTALL_DOCS=ON
+          -DSDL_INSTALL_TESTS=OFF
+
+      - name: CMake Build SDL
+        working-directory: clones/SDL
+        run: cmake --build build --config Release --parallel
 
       - name: Get SDL_image source
         uses: actions/checkout@v7
@@ -98,13 +116,13 @@ jobs:
           path: clones/SDL_image
           submodules: recursive
 
-      - name: CMake Configure
+      - name: CMake Configure SDL_image
         working-directory: clones/SDL_image
         run: >
           cmake -S . -B build -G "${{ matrix.generator }}"
           -DCMAKE_C_COMPILER=${{ matrix.compiler }}
           -DCMAKE_BUILD_TYPE=Release
-          -DSDL3_DIR=clones/SDL
+          -DSDL3_DIR="../SDL/build"
           -DSDL_SHARED=ON
           -DSDL_STATIC=OFF
           -DSDL_TEST_LIBRARY=OFF
@@ -113,7 +131,7 @@ jobs:
           -DSDL_DISABLE_INSTALL_DOCS=ON
           -DSDL_INSTALL_TESTS=OFF
 
-      - name: CMake Build
+      - name: CMake Build SDL_image
         working-directory: clones/SDL_image
         run: |
           cmake --build build --config Release --parallel
