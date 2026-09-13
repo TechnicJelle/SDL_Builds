@@ -79,18 +79,18 @@ jobs:
           libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev
           libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
 
-      - name: Get latest SDL3 release version
+      - name: SDL - Get latest release version
         run: |
           echo "SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")" >> $GITHUB_ENV
 
-      - name: Get SDL source
+      - name: SDL - Get source
         uses: actions/checkout@v7
         with:
           repository: libsdl-org/SDL.git
           ref: ${{ env.SDL_TAG }}
           path: clones/SDL
 
-      - name: CMake Configure SDL
+      - name: SDL - CMake Configure
         working-directory: clones/SDL
         run: >
           cmake -S . -B build -G "${{ matrix.generator }}"
@@ -104,11 +104,11 @@ jobs:
           -DSDL_DISABLE_INSTALL_DOCS=ON
           -DSDL_INSTALL_TESTS=OFF
 
-      - name: CMake Build SDL
+      - name: SDL - CMake Build
         working-directory: clones/SDL
         run: cmake --build build --config Release --parallel
 
-      - name: Get SDL_image source
+      - name: SDL_image - Get source
         uses: actions/checkout@v7
         with:
           repository: libsdl-org/SDL_image.git
@@ -116,7 +116,7 @@ jobs:
           path: clones/SDL_image
           submodules: recursive
 
-      - name: CMake Configure SDL_image
+      - name: SDL_image - CMake Configure
         working-directory: clones/SDL_image
         run: >
           cmake -S . -B build -G "${{ matrix.generator }}"
@@ -131,7 +131,7 @@ jobs:
           -DSDL_DISABLE_INSTALL_DOCS=ON
           -DSDL_INSTALL_TESTS=OFF
 
-      - name: CMake Build SDL_image
+      - name: SDL_image - CMake Build
         working-directory: clones/SDL_image
         run: |
           cmake --build build --config Release --parallel
