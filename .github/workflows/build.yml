@@ -101,4 +101,5 @@ jobs:
         run: |
           [[ $(git diff-index HEAD --) ]] || { echo "No updates found. No push necessary." >> $GITHUB_STEP_SUMMARY; exit 0; }
           git commit -m "Updated SDL"
+          git pull --rebase
           git push
