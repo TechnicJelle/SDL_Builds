@@ -1,0 +1,172 @@
+name: Build SDL3_image
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sdl-image-version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      needs_update: ${{ steps.tag.outputs.needs_update }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Get Latest Release Tag
+        id: tag
+        run: |
+          SDL_IMAGE_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL_image/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")
+          SDL_IMAGE_TAG_LOCAL=$(cat libs/SDL3_image/version.txt || true)
+          if [[ "$SDL_IMAGE_TAG" == "$SDL_IMAGE_TAG_LOCAL" ]]; then
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "No updates found. No further work necessary." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "tag=$SDL_IMAGE_TAG" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    name: build (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    needs: sdl-image-version
+    if: needs.sdl-image-version.outputs.needs_update == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Source for OSes: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+          # Source for RIDs: https://learn.microsoft.com/en-us/dotnet/core/rid-catalog#known-rids
+          - os: ubuntu-latest
+            rid: linux-x64
+            so-name: libSDL3_image.so
+            compiler: gcc
+            generator: Ninja
+          - os: ubuntu-24.04-arm
+            rid: linux-arm64
+            so-name: libSDL3_image.so
+            compiler: gcc
+            generator: Ninja
+          - os: windows-latest
+            rid: win-x64
+            so-name: SDL3_image.dll
+            compiler: cl
+            generator: "Visual Studio 18 2026"
+          - os: windows-11-vs2026-arm
+            rid: win-arm64
+            so-name: SDL3_image.dll
+            compiler: cl
+            generator: "Visual Studio 18 2026"
+    defaults:
+      run:
+        shell: bash
+    env:
+      SDL_IMAGE_TAG: ${{ needs.sdl-image-version.outputs.tag }}
+    steps:
+      - name: Install Linux dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: >
+          sudo apt-get install build-essential git make
+          pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev
+          libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev
+          libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev
+          libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev
+          libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev
+          libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
+
+      - name: Get latest SDL3 release version
+        run: |
+          echo "SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL_image/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")" >> $GITHUB_ENV
+
+      - name: Get SDL source
+        uses: actions/checkout@v7
+        with:
+          repository: libsdl-org/SDL.git
+          ref: ${{ env.SDL_TAG }}
+          path: clones/SDL
+
+      - name: Get SDL_image source
+        uses: actions/checkout@v7
+        with:
+          repository: libsdl-org/SDL_image.git
+          ref: ${{ env.SDL_IMAGE_TAG }}
+          path: clones/SDL_image
+
+      - name: CMake Configure
+        working-directory: clones/SDL_image
+        run: >
+          cmake -S . -B build -G "${{ matrix.generator }}"
+          -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+          -DCMAKE_BUILD_TYPE=Release
+          -DSDL_SHARED=ON
+          -DSDL_STATIC=OFF
+          -DSDL_TEST_LIBRARY=OFF
+          -DSDL_TESTS=OFF
+          -DSDL_DISABLE_INSTALL=ON
+          -DSDL_DISABLE_INSTALL_DOCS=ON
+          -DSDL_INSTALL_TESTS=OFF
+
+      - name: CMake Build
+        working-directory: clones/SDL_image
+        run: |
+          cmake --build build --config Release --parallel
+          cd build
+          [ -d "Release" ] && cp Release/* . || true
+
+      - name: Prepare for upload
+        run: |
+          mkdir -p upload
+          cp "clones/SDL_image/build/${{ matrix.so-name }}" "upload/${{ matrix.rid }},${{ matrix.so-name }}"
+
+      - name: Upload built Dynamic Library file
+        uses: actions/upload-artifact@v7
+        with:
+          path: upload/*
+          archive: false
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [ sdl-image-version, build ]
+    if: needs.sdl-image-version.outputs.needs_update == 'true'
+    env:
+      SDL_IMAGE_TAG: ${{ needs.sdl-image-version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download built Dynamic Library files
+        uses: actions/download-artifact@v8
+        with:
+          path: builds
+          merge-multiple: true
+
+      - name: Put Dynamic Library files into the correct spots
+        working-directory: builds
+        run: |
+          for FILE in *; do
+            PARTS=(${FILE//,/ })
+            mkdir -p ../libs/SDL3_image/${PARTS[0]}
+            cp "$FILE" ../libs/SDL3_image/${PARTS[0]}/${PARTS[1]}
+          done
+          git add ../libs
+
+      - name: Setup git credentials for the GitHub Actions Bot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Mark success
+        run: |
+          echo "$SDL_IMAGE_TAG" > libs/SDL3_image/version.txt
+          git add libs/SDL3_image/version.txt
+
+      - name: Push update
+        run: |
+          [[ $(git diff-index HEAD --) ]] || { echo "No updates found. No push necessary." >> $GITHUB_STEP_SUMMARY; exit 0; }
+          git commit -m "Updated SDL_image to $SDL_IMAGE_TAG"
+          git pull --rebase
+          git push
