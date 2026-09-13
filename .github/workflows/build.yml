@@ -34,9 +34,6 @@ jobs:
           - os: windows-latest
             compiler: cl
             generator: "Visual Studio 18 2026"
-          - os: windows-latest
-            compiler: cl
-            generator: Ninja
     defaults:
       run:
         shell: bash
