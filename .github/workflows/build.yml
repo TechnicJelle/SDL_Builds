@@ -55,6 +55,7 @@ jobs:
 
       - name: Extract Dynamic Library from build
         run: |
+          mkdir -p runtimes
           cp clones/SDL/build/*.so runtimes/ --dereference
           git add runtimes
 
