@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   sdl-version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
       needs_update: ${{ steps.tag.outputs.needs_update }}
@@ -25,7 +25,7 @@ jobs:
           SDL_TAG_LOCAL=$(cat libs/SDL3/version.txt)
           if [[ "$SDL_TAG" == "$SDL_TAG_LOCAL" ]]; then
             echo "needs_update=false" >> $GITHUB_OUTPUT
-            echo "No updates found. No further work necessary" >> $GITHUB_STEP_SUMMARY
+            echo "No updates found. No further work necessary." >> $GITHUB_STEP_SUMMARY
           else
             echo "needs_update=true" >> $GITHUB_OUTPUT
             echo "tag=$SDL_TAG" >> $GITHUB_OUTPUT
@@ -107,7 +107,7 @@ jobs:
           archive: false
 
   push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs: [ sdl-version, build ]
     if: needs.sdl-version.outputs.needs_update == true
     env:
