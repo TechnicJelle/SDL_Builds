@@ -95,8 +95,8 @@ jobs:
         env:
           SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
         run: |
-          echo "$SDL_TAG" > libs/SDL/version.txt
-          git add version_SDL
+          echo "$SDL_TAG" > libs/SDL3/version.txt
+          git add libs/SDL3/version.txt
 
       - name: Push update
         run: |
