@@ -83,8 +83,11 @@ jobs:
         run: mkdir -p clones
 
       - name: Get SDL source
-        working-directory: clones
-        run: git clone --depth 1 --branch $SDL_TAG https://github.com/libsdl-org/SDL.git
+        uses: actions/checkout@v7
+        with:
+          repository: libsdl-org/SDL.git
+          ref: $SDL_TAG
+          path: clones
 
       - name: CMake Configure
         working-directory: clones/SDL
