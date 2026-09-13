@@ -1,4 +1,4 @@
-name: Build
+name: Build SDL3
 
 on:
   push:
