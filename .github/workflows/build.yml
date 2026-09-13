@@ -81,7 +81,7 @@ jobs:
         working-directory: clones/SDL
         run: |
           cmake --build build --config Release --parallel
-          ls -la build
+          ls -la build/Release
 
       - name: Upload built Dynamic Library file
         uses: actions/upload-artifact@v7
