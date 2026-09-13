@@ -76,7 +76,7 @@ jobs:
     needs: [ sdl-version, build-linux-x64 ]
     steps:
       - name: Download built Dynamic Library files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v8
         with:
           path: build
         
