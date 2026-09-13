@@ -110,14 +110,14 @@ jobs:
           merge-multiple: true
 
       - name: Put Dynamic Library files into the correct spots
+        working-directory: builds
         run: |
-          cd builds
           for FILE in *; do
             PARTS=(${FILE//,/ })
             mkdir -p ../libs/SDL3/$PARTS[0]
             cp "$FILE" ../libs/SDL3/$PARTS[0]/$PARTS[1]
           done
-          git add libs
+          git add ../libs
 
       - name: Setup git credentials for the GitHub Actions Bot
         run: |
