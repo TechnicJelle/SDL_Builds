@@ -55,7 +55,7 @@ jobs:
 
       - name: Extract Dynamic Library from build
         run: |
-          cp clones/SDL/build/.so runtimes/ --dereference
+          cp clones/SDL/build/*.so runtimes/ --dereference
           git add runtimes
 
       - name: Setup git credentials for the GitHub Actions Bot
