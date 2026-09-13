@@ -114,8 +114,8 @@ jobs:
         run: |
           for FILE in *; do
             PARTS=(${FILE//,/ })
-            mkdir -p ../libs/SDL3/$PARTS[0]
-            cp "$FILE" ../libs/SDL3/$PARTS[0]/$PARTS[1]
+            mkdir -p ../libs/SDL3/${PARTS[0]}
+            cp "$FILE" ../libs/SDL3/${PARTS[0]}/${PARTS[1]}
           done
           git add ../libs
 
