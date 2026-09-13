@@ -96,6 +96,7 @@ jobs:
           repository: libsdl-org/SDL_image.git
           ref: ${{ env.SDL_IMAGE_TAG }}
           path: clones/SDL_image
+          submodules: recursive
 
       - name: CMake Configure
         working-directory: clones/SDL_image
