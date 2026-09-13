@@ -33,7 +33,7 @@ jobs:
             generator: Ninja
           - os: windows-latest
             compiler: cl
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 18 2026"
     defaults:
       run:
         shell: bash
