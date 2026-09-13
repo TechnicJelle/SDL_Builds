@@ -24,10 +24,11 @@ jobs:
           SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")
           SDL_TAG_LOCAL=$(cat libs/SDL3/version.txt)
           if [[ "$SDL_TAG" == "$SDL_TAG_LOCAL" ]]; then
-            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "No updates found. No further work necessary" >> $GITHUB_STEP_SUMMARY
           else
-            echo "needs_update=true" >> "$GITHUB_OUTPUT"
-            echo "tag=$SDL_TAG" >> "$GITHUB_OUTPUT"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "tag=$SDL_TAG" >> $GITHUB_OUTPUT
           fi
 
   build:
