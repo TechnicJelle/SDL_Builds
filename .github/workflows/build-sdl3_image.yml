@@ -104,7 +104,7 @@ jobs:
           cmake -S . -B build -G "${{ matrix.generator }}"
           -DCMAKE_C_COMPILER=${{ matrix.compiler }}
           -DCMAKE_BUILD_TYPE=Release
-          -SDL3_DIR=clones/SDL
+          -DSDL3_DIR=clones/SDL
           -DSDL_SHARED=ON
           -DSDL_STATIC=OFF
           -DSDL_TEST_LIBRARY=OFF
