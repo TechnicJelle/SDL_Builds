@@ -19,6 +19,8 @@ jobs:
 
       - name: Get Latest Release Tag
         id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")
           SDL_TAG_LOCAL=$(cat libs/SDL3/version.txt)
