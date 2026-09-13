@@ -50,7 +50,7 @@ jobs:
           libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
 
       - name: Prepare for cloning
-        run: mkdir clones
+        run: mkdir clones && cmake -E capabilities | jq
 
       - name: Get SDL
         working-directory: clones
