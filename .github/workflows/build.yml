@@ -36,7 +36,7 @@ jobs:
             generator: Ninja
           - os: windows-latest
             rid: win-x64
-            so-name: Release/SDL3.dll
+            so-name: SDL3.dll
             compiler: cl
             generator: "Visual Studio 18 2026"
     defaults:
@@ -57,13 +57,13 @@ jobs:
       - name: Prepare for cloning
         run: mkdir clones
 
-      - name: Get SDL
+      - name: Get SDL source
         working-directory: clones
         env:
           SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
         run: git clone --depth 1 --branch $SDL_TAG https://github.com/libsdl-org/SDL.git
 
-      - name: Configure SDL
+      - name: CMake Configure
         working-directory: clones/SDL
         run: >
           cmake -S . -B build -G "${{ matrix.generator }}"
@@ -77,16 +77,18 @@ jobs:
           -DSDL_DISABLE_INSTALL_DOCS=ON
           -DSDL_INSTALL_TESTS=OFF
 
-      - name: Build SDL
+      - name: CMake Build
         working-directory: clones/SDL
         run: |
           cmake --build build --config Release --parallel
-          ls -la build/Release
+          cd build
+          [ -d "Release" ] && cp Release/* .
 
       - name: Upload built Dynamic Library file
         uses: actions/upload-artifact@v7
         with:
           path: clones/SDL/build/${{ matrix.so-name }}
+          name: ${{ matrix.rid }},${{ matrix.so-name }}
           archive: false
 
   push:
@@ -99,6 +101,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           path: builds
+          merge-multiple: true
         
       - name: Put Dynamic Library files into the correct spots
         run: |
