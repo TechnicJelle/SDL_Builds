@@ -108,11 +108,15 @@ jobs:
         with:
           path: builds
           merge-multiple: true
-        
+
       - name: Put Dynamic Library files into the correct spots
         run: |
-          mkdir -p libs/SDL3/linux-x64
-          cp builds/libSDL3.so libs/SDL3/linux-x64/
+          cd builds
+          for FILE in *; do
+            PARTS=(${FILE//,/ })
+            mkdir -p ../libs/SDL3/$PARTS[0]
+            cp "$FILE" ../libs/SDL3/$PARTS[0]/$PARTS[1]
+          done
           git add libs
 
       - name: Setup git credentials for the GitHub Actions Bot
