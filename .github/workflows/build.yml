@@ -40,13 +40,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Source for OSes: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+          # Source for RIDs: https://learn.microsoft.com/en-us/dotnet/core/rid-catalog#known-rids
           - os: ubuntu-latest
             rid: linux-x64
             so-name: libSDL3.so
             compiler: gcc
             generator: Ninja
+          - os: ubuntu-24.04-arm
+            rid: linux-arm64
+            so-name: libSDL3.so
+            compiler: gcc
+            generator: Ninja
           - os: windows-latest
             rid: win-x64
+            so-name: SDL3.dll
+            compiler: cl
+            generator: "Visual Studio 18 2026"
+          - os: windows-11-vs2026-arm
+            rid: win-arm64
             so-name: SDL3.dll
             compiler: cl
             generator: "Visual Studio 18 2026"
