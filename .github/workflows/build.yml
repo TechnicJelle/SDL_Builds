@@ -22,6 +22,7 @@ jobs:
           echo "tag=$SDL_TAG" >> "$GITHUB_OUTPUT"
 
   build:
+    name: build (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     needs: sdl-version
     strategy:
@@ -29,9 +30,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            rid: linux-x64
+            so-name: libSDL3.so
             compiler: gcc
             generator: Ninja
           - os: windows-latest
+            rid: win-x64
+            so-name: Release/SDL3.dll
             compiler: cl
             generator: "Visual Studio 18 2026"
     defaults:
@@ -81,7 +86,7 @@ jobs:
       - name: Upload built Dynamic Library file
         uses: actions/upload-artifact@v7
         with:
-          path: clones/SDL/build/libSDL3.so
+          path: clones/SDL/build/${{ matrix.so-name }}
           archive: false
 
   push:
