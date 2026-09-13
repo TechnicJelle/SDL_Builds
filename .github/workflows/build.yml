@@ -35,7 +35,7 @@ jobs:
     name: build (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     needs: sdl-version
-    if: needs.sdl-version.outputs.needs_update == true
+    if: needs.sdl-version.outputs.needs_update == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -109,7 +109,7 @@ jobs:
   push:
     runs-on: ubuntu-slim
     needs: [ sdl-version, build ]
-    if: needs.sdl-version.outputs.needs_update == true
+    if: needs.sdl-version.outputs.needs_update == 'true'
     env:
       SDL_TAG: ${{ needs.sdl-version.outputs.tag }}
     steps:
