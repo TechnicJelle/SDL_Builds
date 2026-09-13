@@ -79,15 +79,12 @@ jobs:
           libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev
           libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
 
-      - name: Prepare for cloning
-        run: mkdir -p clones
-
       - name: Get SDL source
         uses: actions/checkout@v7
         with:
           repository: libsdl-org/SDL.git
           ref: ${{ env.SDL_TAG }}
-          path: clones
+          path: clones/SDL
 
       - name: CMake Configure
         working-directory: clones/SDL
