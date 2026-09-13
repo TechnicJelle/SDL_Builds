@@ -34,6 +34,9 @@ jobs:
           - os: windows-latest
             compiler: cl
             generator: "Visual Studio 18 2026"
+          - os: windows-latest
+            compiler: cl
+            generator: Ninja
     defaults:
       run:
         shell: bash
@@ -50,7 +53,7 @@ jobs:
           libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev
 
       - name: Prepare for cloning
-        run: mkdir clones && cmake -E capabilities | jq
+        run: mkdir clones
 
       - name: Get SDL
         working-directory: clones
