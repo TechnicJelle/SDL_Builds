@@ -25,7 +25,7 @@ jobs:
           SDL_TAG=$(curl --no-progress-meter --write-out "%{redirect_url}" https://github.com/libsdl-org/SDL/releases/latest | sed -E "s/.*\/releases\/tag\/([^#]*)#?.*/\1/")
           SDL_TAG_LOCAL=$(cat libs/SDL3/version.txt)
           if [[ "$SDL_TAG" == "$SDL_TAG_LOCAL" ]]; then
-            gh run cancel
+            gh run cancel ${{ github.run_id }}
           else
             echo "tag=$SDL_TAG" >> "$GITHUB_OUTPUT"
           fi
