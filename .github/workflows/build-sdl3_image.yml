@@ -100,9 +100,7 @@ jobs:
           -DSDL_STATIC=OFF
           -DSDL_TEST_LIBRARY=OFF
           -DSDL_TESTS=OFF
-          -DSDL_DISABLE_INSTALL=ON
-          -DSDL_DISABLE_INSTALL_DOCS=ON
-          -DSDL_INSTALL_TESTS=OFF
+          -DSDL_INSTALL=OFF
 
       - name: SDL - CMake Build
         working-directory: clones/SDL
@@ -123,13 +121,29 @@ jobs:
           -DCMAKE_C_COMPILER=${{ matrix.compiler }}
           -DCMAKE_BUILD_TYPE=Release
           -DSDL3_DIR="../SDL/build"
-          -DSDL_SHARED=ON
-          -DSDL_STATIC=OFF
-          -DSDL_TEST_LIBRARY=OFF
-          -DSDL_TESTS=OFF
-          -DSDL_DISABLE_INSTALL=ON
-          -DSDL_DISABLE_INSTALL_DOCS=ON
-          -DSDL_INSTALL_TESTS=OFF
+          -DBUILD_SHARED_LIBS=ON
+          -DSDLIMAGE_SAMPLES=OFF
+          -DSDLIMAGE_INSTALL=OFF
+          -DSDLIMAGE_VENDORED=ON
+          -DSDLIMAGE_DEPS_SHARED=OFF
+          -DSDLIMAGE_ANI=ON
+          -DSDLIMAGE_AVIF=ON
+          -DSDLIMAGE_BMP=ON
+          -DSDLIMAGE_GIF=ON
+          -DSDLIMAGE_JPG=ON
+          -DSDLIMAGE_JXL=ON
+          -DSDLIMAGE_LBM=ON
+          -DSDLIMAGE_PCX=ON
+          -DSDLIMAGE_PNG=ON
+          -DSDLIMAGE_PNM=ON
+          -DSDLIMAGE_QOI=ON
+          -DSDLIMAGE_SVG=ON
+          -DSDLIMAGE_TGA=ON
+          -DSDLIMAGE_TIF=ON
+          -DSDLIMAGE_WEBP=ON
+          -DSDLIMAGE_XCF=ON
+          -DSDLIMAGE_XPM=ON
+          -DSDLIMAGE_XV=ON
 
       - name: SDL_image - CMake Build
         working-directory: clones/SDL_image
