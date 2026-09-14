@@ -3,7 +3,7 @@ name: Build SDL3
 on:
   push:
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/build-sdl3.yml'
   workflow_dispatch:
 
 permissions:
@@ -96,9 +96,7 @@ jobs:
           -DSDL_STATIC=OFF
           -DSDL_TEST_LIBRARY=OFF
           -DSDL_TESTS=OFF
-          -DSDL_DISABLE_INSTALL=ON
-          -DSDL_DISABLE_INSTALL_DOCS=ON
-          -DSDL_INSTALL_TESTS=OFF
+          -DSDL_INSTALL=OFF
 
       - name: CMake Build
         working-directory: clones/SDL
